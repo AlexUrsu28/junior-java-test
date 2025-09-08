@@ -6,6 +6,7 @@ import com.example.carins.web.dto.CarDto;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.time.LocalDate;
+import java.time.format.DateTimeParseException;
 import java.util.List;
 
 @RestController
@@ -24,11 +25,23 @@ public class CarController {
     }
 
     @GetMapping("/cars/{carId}/insurance-valid")
-    public ResponseEntity<?> isInsuranceValid(@PathVariable Long carId, @RequestParam String date) {
-        // TODO: validate date format and handle errors consistently
-        LocalDate d = LocalDate.parse(date);
-        boolean valid = service.isInsuranceValid(carId, d);
-        return ResponseEntity.ok(new InsuranceValidityResponse(carId, d.toString(), valid));
+    public ResponseEntity<?> isInsuranceValid(
+            @PathVariable Long carId,
+            @RequestParam String date
+    ) {
+        final LocalDate d;
+        try {
+            d = LocalDate.parse(date);
+        } catch (DateTimeParseException ex) {
+            return ResponseEntity.badRequest().body("Invalid date format, expected YYYY-MM-DD");
+        }
+
+        try {
+            boolean valid = service.isInsuranceValid(carId, d);
+            return ResponseEntity.ok(new InsuranceValidityResponse(carId, d.toString(), valid));
+        } catch (IllegalArgumentException notFound) {
+            return ResponseEntity.status(404).body("carId not found");
+        }
     }
 
     private CarDto toDto(Car c) {
