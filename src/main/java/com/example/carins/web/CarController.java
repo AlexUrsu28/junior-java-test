@@ -2,6 +2,7 @@ package com.example.carins.web;
 
 import com.example.carins.model.Car;
 import com.example.carins.service.CarService;
+import com.example.carins.util.DateRange;
 import com.example.carins.web.dto.CarDto;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -34,6 +35,11 @@ public class CarController {
             d = LocalDate.parse(date);
         } catch (DateTimeParseException ex) {
             return ResponseEntity.badRequest().body("Invalid date format, expected YYYY-MM-DD");
+        }
+
+        if (!DateRange.isSupported(d)) {
+            return ResponseEntity.badRequest()
+                    .body("Date out of supported range [" + DateRange.MIN + " .. " + DateRange.MAX + "]");
         }
 
         try {
