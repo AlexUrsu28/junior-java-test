@@ -31,11 +31,6 @@ public class PolicyExpiryScheduler {
                 : ZoneId.of(configuredZone);
     }
 
-    /**
-     * Run once per day at 00:05 local time (within 1 hour after midnight),
-     * log each policy that has endDate == today.
-     * Since this runs only once per day, it won't spam.
-     */
     @Scheduled(cron = "*/10 * * * * *")
     @Transactional(readOnly = false)
     public void logExpiredPolicies() {
