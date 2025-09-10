@@ -27,4 +27,12 @@ public class CarService {
         carRepository.findById(carId).orElseThrow(() -> new IllegalArgumentException("carId not found"));
         return policyRepository.existsActiveOnDate(carId, date);
     }
+
+    public Car saveCar(Car car) {
+        carRepository.findByVin(car.getVin())
+                .ifPresent(existing -> {
+                    throw new IllegalArgumentException("VIN already exists: " + car.getVin());
+                });
+        return carRepository.save(car);
+    }
 }
